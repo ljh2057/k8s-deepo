@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-deepo
+  name: k8s-deepo-service
   namespace: k8s-deeplearning
 spec:
   sessionAffinity: ClientIP
@@ -10,12 +10,12 @@ spec:
   - protocol: TCP
     port: 22
     targetPort: 22
-    nodePort: 30022
+    nodePort: 30033
     name: ssh
   - protocol: TCP
     port: 8000
     targetPort: 8000
-    nodePort: 30088
+    nodePort: 30099
     name: jupyterhub
   selector:
-    app: deepo-deploy
+    app: k8s-deepo-deploy

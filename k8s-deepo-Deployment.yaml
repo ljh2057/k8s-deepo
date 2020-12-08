@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-deepo-deploy
+  namespace: k8s-deeplearning
+spec:
+  selector:
+    matchLabels:
+      app: k8s-deepo-deploy
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: k8s-deepo-deploy
+    spec:
+      volumes:
+       - name: k8s-deepo-cm-jupyter
+         configMap:
+           name: k8s-deepo-cm
+           items:
+           - key: jupyterconfig
+             path: jupyterconfigpath
+       - name: k8s-deepo-deploy-volume
+         hostPath:
+           path: /mnt/disk3/k8s_deepo_workdir
+      containers:
+        - name: k8s-deepo-deploy
+          image: ljh2057/hhu-deepo:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "4000m"
+              memory: "6Gi"
+            requests:
+              cpu: "2000m"
+              memory: "4Gi"
+          workingDir: /home
+          command: ["/bin/bash","-c"]
+          args: ["/etc/init.d/ssh start;useradd -m -s /bin/bash cy;echo 'cy:cy'|chpasswd;chown -R cy:cy /home/cy;useradd -m -s /bin/bash ljh;echo 'ljh:ljh'|chpasswd;chown -R ljh:ljh /home/ljh;useradd -m -s /bin/bash zl;echo 'zl:zl'|chpasswd;chown -R zl:zl zl;useradd -m -s /bin/bash lyc;echo 'lyc:lyc'|chpasswd;chown -R lyc:lyc lyc;jupyterhub --config=/home/jupyterhub_config.py --no-ssl"]
+          ports:
+           - name: ssh
+             containerPort: 22
+             protocol: TCP
+           - name: jupyterhub
+             containerPort: 8000
+          volumeMounts:
+           - name: k8s-deepo-cm-jupyter
+             mountPath: /home/jupyterhub_config.py
+             subPath: jupyterconfigpath
+           - name: k8s-deepo-deploy-volume
+             mountPath: /home
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      restartPolicy: Always
