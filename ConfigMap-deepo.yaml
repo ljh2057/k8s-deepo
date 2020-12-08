@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-deepo
+  namespace: k8s-deeplearning
+data:
+  sourcelist: |
+    deb http://mirrors.aliyun.com/ubuntu/ trusty main restricted universe multiverse
+    deb http://mirrors.aliyun.com/ubuntu/ trusty-security main restricted universe multiverse
+    deb http://mirrors.aliyun.com/ubuntu/ trusty-updates main restricted universe multiverse
+    deb http://mirrors.aliyun.com/ubuntu/ trusty-proposed main restricted universe multiverse
+    deb http://mirrors.aliyun.com/ubuntu/ trusty-backports main restricted universe multiverse
+    deb-src http://mirrors.aliyun.com/ubuntu/ trusty main restricted universe multiverse
+    deb-src http://mirrors.aliyun.com/ubuntu/ trusty-security main restricted universe multiverse
+    deb-src http://mirrors.aliyun.com/ubuntu/ trusty-updates main restricted universe multiverse
+    deb-src http://mirrors.aliyun.com/ubuntu/ trusty-proposed main restricted universe multiverse
+    deb-src http://mirrors.aliyun.com/ubuntu/ trusty-backports main restricted universe multiverse
+  jupyterconfig: |
+    c.JupyterHub.proxy_cmd = ['/usr/local/bin/configurable-http-proxy',]
+    c.Authenticator.allowed_users = {'ljh','zl','cy','yj','jcz','zx','wf','cmx','lyc'}
+    c.Authenticator.delete_invalid_users = True
+    c.Authenticator.admin_users = {'ljh'}
+    c.Spawner.default_url = '/lab'
+    c.LocalAuthenticator.create_system_users = True
