@@ -10,12 +10,12 @@ spec:
   - protocol: TCP
     port: 22
     targetPort: 22
-    nodePort: 30033
+    nodePort: 30022
     name: ssh
   - protocol: TCP
     port: 8000
     targetPort: 8000
-    nodePort: 30099
+    nodePort: 30088
     name: jupyterhub
   selector:
     app: k8s-deepo-deploy

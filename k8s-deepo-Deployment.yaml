@@ -25,12 +25,12 @@ spec:
            path: /mnt/disk3/k8s_deepo_workdir
       containers:
         - name: k8s-deepo-deploy
-          image: ljh2057/hhu-deepo:latest
+          image: ljh2057/k8s-deepo:v2
           imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: "4000m"
-              memory: "6Gi"
+              memory: "8Gi"
             requests:
               cpu: "2000m"
               memory: "4Gi"
