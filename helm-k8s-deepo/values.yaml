@@ -1,0 +1,123 @@
+# Default values for helm-k8s-deepo.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: ljh2057/k8s-deepo
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: v2
+volumes:
+  hostPath:
+    path: /mnt/disk3/k8s-deepo-workdir
+containers:
+  workingDir: "/home"
+  command: ["\"/bin/bash\",\"-c\""]
+  args: ["\"/etc/init.d/ssh start;useradd -m -s /bin/bash cy;echo 'cy:cy'|chpasswd;chown -R cy:cy /home/cy;useradd -m -s /bin/bash ljh;echo 'ljh:ljh'|chpasswd;chown -R ljh:ljh /home/ljh;useradd -m -s /bin/bash zl;echo 'zl:zl'|chpasswd;chown -R zl:zl zl;useradd -m -s /bin/bash lyc;echo 'lyc:lyc'|chpasswd;chown -R lyc:lyc lyc;jupyterhub --config=/home/jupyterhub_config.py --no-ssl\""]
+  ports:
+  - name: ssh
+    containerPort: 22
+    protocol: TCP
+  - name: jupyterhub
+    containerPort: 8000
+    protocol: TCP
+  mountPath:
+    a: /home/jupyterhub_config.py
+    b: /home
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+readinessProbe:
+  tcpSocket:
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+livenessProbe:
+  tcpSocket:
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+podAnnotations: {}
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  #sessionAffinity: ClientIP
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 22
+    targetPort: 22
+    nodePort: 30022
+    name: ssh
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+    nodePort: 30088
+    name: jupyterhub
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+resources: 
+  limits:
+    cpu: 4000m
+    memory: 8Gi
+  requests:
+    cpu: 2000m
+    memory: 4Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+restartPolicy: Always
+configmapData:
+  name: jupyterconfig
+  jupyterconfig: |-
+    c.JupyterHub.proxy_cmd = ['/usr/local/bin/configurable-http-proxy',]
+    c.Authenticator.allowed_users = {'ljh','zl','cy','yj','jcz','zx','wf','cmx','lyc'}
+    c.Authenticator.delete_invalid_users = True
+    c.Authenticator.admin_users = {'ljh'}
+    c.Spawner.default_url = '/lab'
+    c.LocalAuthenticator.create_system_users = True
+    c.NotebookApps.shutdown_no_activity_timeout = 3600

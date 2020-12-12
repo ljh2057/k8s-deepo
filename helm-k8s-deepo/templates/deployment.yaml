@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm-k8s-deepo.fullname" . }}
+  labels:
+    {{- include "helm-k8s-deepo.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "helm-k8s-deepo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "helm-k8s-deepo.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "helm-k8s-deepo.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            {{- toYaml .Values.containers.ports | nindent 10 }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          workingDir: {{ .Values.containers.workingDir }}
+          command: {{ .Values.containers.command }}
+          args: {{ .Values.containers.args }}
+          volumeMounts:
+          - name: {{ .Release.Name }}-cm
+            mountPath: {{ .Values.containers.mountPath.a }}
+            subPath: {{  .Values.configmapData.name }}
+          - name: {{ .Release.Name }}-volume
+            mountPath: {{ .Values.containers.mountPath.b }}
+      volumes:
+      - name: {{ .Release.Name }}-cm
+        configMap:
+          name: {{ .Release.Name }}
+      - name: {{ .Release.Name }}-volume
+        hostPath:
+          path: {{ .Values.volumes.hostPath.path }}
+      restartPolicy: {{ .Values.restartPolicy }} 
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
