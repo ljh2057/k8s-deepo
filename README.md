@@ -15,7 +15,7 @@ Deepo 的 Dockerfile 生成器主要有以下特征：
 - 允许使用类似乐高那样的模块自定义环境
 - 自动解决依赖项问题
 
-Deepo 除了提供的可用深度学习框架的标准镜像，也可以自定义自己的环境，以 GPU 版本 TensorFlow 为例，对应的镜像 tag 如 `deepo:tensorflow-py36-cu101`，考虑到日常团队开发中不同成员可能擅长于不同的深度学习框架，也可使用 Deepo 的 All-in-One 镜像，对应 tag 为 deepo:all-cu101，但不建议这么做，因为 All-in-One 镜像过于臃肿，当然 Deepo 也提供了脚本（[Build your own customized image](https://github.com/ufoym/deepo)） 生成特定 Dockerfile 以提供自定义的环境。
+Deepo 除了提供的可用深度学习框架的标准镜像，也可以自定义自己的环境，以 GPU 版本 TensorFlow 为例，对应的镜像 tag 如 `deepo:tensorflow-py36-cu101`，考虑到日常团队开发中不同成员可能擅长于不同的深度学习框架，也可使用 Deepo 的 All-in-One 镜像，对应 tag 为 `deepo:all-cu101`，但不建议这么做，因为 All-in-One 镜像过于臃肿，当然 Deepo 也提供了脚本（[Build your own customized image](https://github.com/ufoym/deepo)） 生成特定 Dockerfile 以提供自定义的环境。
 
 
 ## k8s-deepo
